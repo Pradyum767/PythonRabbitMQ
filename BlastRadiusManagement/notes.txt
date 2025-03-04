@@ -1,0 +1,24 @@
+This consumer:
+1. Uses acknowledgments to prevent message loss.
+2. Implements retry logic with a DLQ for failed messages.
+3. Uses pre-fetching to limit unprocessed messages.
+4. Introduces a circuit breaker to stop consuming if errors exceed a threshold.
+
+
+Features of this decoupling:
+1. Decoupling	- Producer and consumer interact via a queue, preventing direct dependencies.
+2. Backpressure Handling - Uses basic_qos(prefetch_count=1) to limit unprocessed messages.
+3. Retries	- Messages are retried up to MAX_RETRIES before being sent to DLQ.
+4. Dead Letter Queue (DLQ)	- Failed messages are sent to dead_letter_queue instead of being lost.
+5. Circuit Breaker	- If failures exceed CIRCUIT_BREAKER_THRESHOLD, processing stops to prevent system overload.
+6. Monitoring & Logging - Errors and retries are logged for visibility.
+
+
+ Features Added for Self-Healing & Self-Protection
+Feature	Implementation
+🔹 Connection Auto-Recovery	If RabbitMQ connection is lost, the consumer automatically reconnects.
+🔹 Exponential Backoff for Retries	Instead of retrying immediately, it waits longer for each retry.
+🔹 Circuit Breaker	If errors exceed CIRCUIT_BREAKER_THRESHOLD, processing stops temporarily.
+🔹 Auto-Restart Consumer	If the consumer crashes, it automatically restarts.
+🔹 Dead Letter Queue (DLQ)	Messages that fail after MAX_RETRIES are moved to a DLQ instead of being lost.
+🔹 Rate Limiting (Prefetch Count)	Consumers take only 1 unacknowledged message at a time to prevent overload.
